@@ -1,0 +1,80 @@
+#!/bin/bash
+
+set -e
+
+##
+# A general message for fetching resources
+#
+readonly NOFEACHABLERESOURCEMESSAGE="I could not fetch the address. Check if the address is reachable or if there's connection in the system."
+
+
+##
+# The address to fetch the installfromuri utility
+#
+readonly INSTALLFROMURIADDRESS=https://raw.githubusercontent.com/danilocgsilva/install_from_uri/master/src/installfromuri
+
+##
+# #1
+# Downloads from a given uri
+# @param $1
+#   The uri to download
+#
+this_downloads() {
+    if which curl > /dev/null 2>&1; then
+        response=$(curl -s -o /dev/null -w "%{http_code}" $1)
+        if [ $response -eq 200 ]; then
+            curl -O $1
+        else
+            echo $NOFEACHABLERESOURCEMESSAGE
+            exit
+        fi
+    elif which wget> /dev/null 2>&1; then
+        response=$(wget --spider -S "$1" 2>&1 | grep "HTTp/" | awk 'print $2')
+        if [ $response -eq 200 ]; then
+            wget $i
+        else
+            echo $NOFEACHABLERESOURCEMESSAGE
+            exit
+        fi
+    else
+        echo Neither wget or curl was found to download. Please, install one first in the system.
+        exit
+    fi
+}
+
+
+##
+# #2
+# Verifies if the ssh is in the system. If not, exits.
+#
+this_verifies_ssh() {
+    if ! which ssh > /dev/null 2>&1; then
+        echo "There's no ssh utility to download. Install it in the system."
+        exit
+    fi
+}
+
+
+##
+# #3
+# Verifies if the installfromuri is in the system.
+#
+this_verifies_askssh() {
+    if which ask_ssh > /dev/null 2>&1; then
+        installfromuri 
+    else
+        echo "There's no ask_ssh utility to download or it has no permission to execute. Install it in the system."
+        exit
+    fi
+}
+
+
+installs_install_from_uri() {
+    original_path=$(pwd)
+    cd /ust/local/bin
+    this_downloads 
+}
+
+
+this_verifies_ssh
+this_verifies_askssh
