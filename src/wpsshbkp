@@ -13,9 +13,17 @@ readonly NOFEACHABLERESOURCEMESSAGE="I could not fetch the address. Check if the
 #
 readonly INSTALLFROMURIADDRESS=https://raw.githubusercontent.com/danilocgsilva/install_from_uri/master/src/installfromuri
 
+
+##
+# The address to fetch the ask_ssh utility
+#
+readonly ASKSSHADDRESS=https://raw.githubusercontent.com/danilocgsilva/ask_ssh/master/src/ask_ssh
+
+
 ##
 # #1
-# Downloads from a given uri
+# Downloads from a given uri.
+# If the uri destiny is not reachable, exits.
 # @param $1
 #   The uri to download
 #
@@ -57,14 +65,27 @@ this_verifies_ssh() {
 
 ##
 # #3
-# Verifies if the installfromuri is in the system.
+# Verifies if the installfromuri is in the system
+#
+this_verifies_installfromuri() {
+    which installfromui > /dev/null 2>&1
+    installfromuriinthesystem=$?
+    if [ $installfromuriinthesystem -eq 0 ]; then
+        this_verifies_askssh
+    else
+        this_downloads $INSTALLFROMURIADDRESS
+    fi
+}
+
+
+##
+# Verifies if the installfromssh is in the system and change flow.
 #
 this_verifies_askssh() {
     if which ask_ssh > /dev/null 2>&1; then
-        installfromuri 
+        source $(which ask_ssh)
     else
-        echo "There's no ask_ssh utility to download or it has no permission to execute. Install it in the system."
-        exit
+        installfromuri $ASKSSHADDRESS
     fi
 }
 
@@ -76,5 +97,9 @@ installs_install_from_uri() {
 }
 
 
+# #2
 this_verifies_ssh
+
 this_verifies_askssh
+
+do_ask_ssh
